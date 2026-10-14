@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIM Pengendalian Gulma Perkebunan</title>
+<style>
+  :root{
+    --cream:#fff8e7;
+    --sky:#8ED3F3;
+    --sky-dark:#3a9fcf;
+    --ink:#2b3a42;
+    --muted:#6b7a82;
+    --card:#fffdf6;
+    --line:#ecdfbd;
+    --good:#4c9a5b; --warn:#e0a526; --bad:#d4604a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI",Roboto,Arial,sans-serif;background:var(--cream);color:var(--ink);line-height:1.5}
+  header{background:var(--sky);position:sticky;top:0;z-index:20;box-shadow:0 3px 10px rgba(0,0,0,.08)}
+  .head-in{max-width:1180px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.15rem}
+  .brand small{display:block;font-weight:400;font-size:.75rem;color:#25505f}
+  nav{margin-left:auto;display:flex;gap:6px;flex-wrap:wrap}
+  nav a{background:rgba(255,248,231,.55);color:var(--ink);text-decoration:none;padding:7px 14px;border-radius:20px;font-size:.88rem;font-weight:600;transition:.2s}
+  nav a:hover{background:var(--cream);transform:translateY(-2px)}
+  main{max-width:1180px;margin:auto;padding:24px 20px 50px}
+  section{margin-top:34px;scroll-margin-top:90px}
+  h2{font-size:1.3rem;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:.9rem;margin-bottom:16px}
+  h2::after{content:"";display:block;width:56px;height:4px;background:var(--sky);border-radius:4px;margin-top:6px}
+
+  /* hero */
+  .hero{display:grid;grid-template-columns:1.3fr 1fr;gap:22px;align-items:stretch}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:0 2px 8px rgba(120,100,40,.07)}
+  .hero h1{font-size:1.7rem;line-height:1.25;margin-bottom:8px}
+  .hero p{color:var(--muted);margin-bottom:12px}
+  .pill{display:inline-block;background:var(--sky);padding:3px 12px;border-radius:14px;font-size:.78rem;font-weight:600;margin:0 6px 6px 0}
+  .tree{text-align:center}
+  .tree .img{border-radius:12px;overflow:hidden;background:linear-gradient(#d9f0fb,#fff8e7);aspect-ratio:4/3;display:flex;align-items:center;justify-content:center}
+  .tree img,.tree svg{width:100%;height:100%;object-fit:cover}
+  .tree h3{margin-top:10px;font-size:1rem}
+  .tree h3 i{font-weight:400}
+  .tree p{font-size:.82rem;color:var(--muted);margin-top:4px}
+  .tree label{display:inline-block;margin-top:8px;font-size:.78rem;color:#25505f;background:var(--sky);padding:4px 12px;border-radius:12px;cursor:pointer}
+  .tree input{display:none}
+
+  /* widgets */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:16px}
+  .w{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;cursor:pointer;
+     transition:transform .22s ease, box-shadow .22s ease, border-color .22s;position:relative;overflow:hidden}
+  .w:hover{transform:scale(1.05);box-shadow:0 10px 24px rgba(58,159,207,.25);border-color:var(--sky)}
+  .w:active{transform:scale(1.02)}
+  .w::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--sky)}
+  .w h4{font-size:1rem;margin-bottom:2px}
+  .w .meta{font-size:.82rem;color:var(--muted)}
+  .w .big{font-size:1.9rem;font-weight:700;color:var(--sky-dark)}
+  .w .hint{font-size:.72rem;color:var(--sky-dark);margin-top:8px;font-weight:600}
+  .tag{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:10px;color:#fff}
+  .Rendah{background:var(--good)} .Sedang{background:var(--warn)} .Tinggi{background:var(--bad)}
+  .bar{height:8px;background:#efe6cc;border-radius:6px;overflow:hidden;margin-top:6px}
+  .bar span{display:block;height:100%;background:var(--sky-dark);border-radius:6px}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+  .avatar{width:44px;height:44px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1f4655;flex:none}
+
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(30,50,60,.45);display:none;align-items:center;justify-content:center;z-index:50;padding:16px}
+  .ov.show{display:flex}
+  .modal{background:var(--cream);border-radius:18px;max-width:680px;width:100%;max-height:88vh;overflow:auto;box-shadow:0 20px 50px rgba(0,0,0,.3);animation:pop .22s ease}
+  @keyframes pop{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}
+  .m-head{background:var(--sky);padding:16px 20px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0}
+  .m-head h3{font-size:1.1rem}
+  .close{border:0;background:var(--cream);width:32px;height:32px;border-radius:50%;font-size:1.1rem;cursor:pointer;transition:.2s}
+  .close:hover{transform:scale(1.15) rotate(90deg)}
+  .m-body{padding:18px 20px 22px}
+  .m-body h5{margin:16px 0 6px;font-size:.92rem;color:var(--sky-dark);text-transform:uppercase;letter-spacing:.04em}
+  .m-body h5:first-child{margin-top:0}
+  table{width:100%;border-collapse:collapse;font-size:.88rem}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  th{background:#f6ecd0;font-size:.8rem}
+  .chip{display:inline-block;background:#e6f5fc;border:1px solid var(--sky);border-radius:12px;padding:2px 10px;font-size:.8rem;margin:2px 4px 2px 0;cursor:pointer;transition:.15s}
+  .chip:hover{transform:scale(1.07);background:var(--sky)}
+  .toolbar{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+  .toolbar input,.toolbar select{padding:8px 12px;border:1px solid var(--line);border-radius:10px;background:var(--card);font-size:.9rem}
+  footer{text-align:center;color:var(--muted);font-size:.8rem;padding:20px}
+  @media(max-width:760px){.hero{grid-template-columns:1fr} nav{margin-left:0}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="head-in">
+    <div class="brand">
+      <svg width="36" height="36" viewBox="0 0 40 40"><circle cx="20" cy="20" r="19" fill="#fff8e7"/><path d="M20 33V19" stroke="#6b4a2b" stroke-width="3" stroke-linecap="round"/><circle cx="20" cy="14" r="8" fill="#4c9a5b"/><circle cx="14" cy="18" r="5" fill="#5fb06e"/><circle cx="26" cy="18" r="5" fill="#5fb06e"/></svg>
+      <div>SIM Pengendalian Gulma<small>Perkebunan Sawit &amp; Karet</small></div>
+    </div>
+    <nav>
+      <a href="#ringkasan">Ringkasan</a>
+      <a href="#ruang">Ruang</a>
+      <a href="#isi">Isi Ruang</a>
+      <a href="#pj">Penanggung Jawab</a>
+      <a href="#eksternal">Faktor Eksternal</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <div class="hero" id="ringkasan">
+    <div class="box">
+      <h1>Sistem Manajemen Pengendalian Gulma Perkebunan</h1>
+      <p>Satu sistem terpadu untuk memantau <b>ruang</b> (blok kebun), <b>isi ruang</b> (gulma, kegiatan, saprodi), <b>penanggung jawab</b>, dan <b>faktor eksternal</b> yang memengaruhi pengendalian gulma pada kebun sawit dan karet.</p>
+      <span class="pill">Kelapa Sawit</span><span class="pill">Karet</span><span class="pill">Klik widget untuk melihat data</span>
+      <div class="grid" style="margin-top:14px;grid-template-columns:repeat(auto-fill,minmax(150px,1fr))" id="stats"></div>
+    </div>
+    <div class="box tree">
+      <div class="img" id="treeBox">
+        <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Ilustrasi pohon sonokeling">
+          <defs><linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cdeefb"/><stop offset="1" stop-color="#fff8e7"/></linearGradient></defs>
+          <rect width="400" height="300" fill="url(#sk)"/>
+          <circle cx="330" cy="50" r="24" fill="#fff3b0"/>
+          <ellipse cx="200" cy="278" rx="190" ry="26" fill="#9bc97d"/>
+          <path d="M192 275 Q196 200 190 150 Q188 130 176 108 M208 275 Q204 200 210 150 Q212 128 226 104" stroke="#6b4a2b" stroke-width="14" fill="none" stroke-linecap="round"/>
+          <path d="M200 160 L200 275" stroke="#6b4a2b" stroke-width="22" stroke-linecap="round"/>
+          <path d="M200 175 Q160 150 130 125 M200 165 Q245 140 275 118" stroke="#6b4a2b" stroke-width="9" fill="none" stroke-linecap="round"/>
+          <g fill="#4c9a5b"><circle cx="200" cy="82" r="48"/><circle cx="140" cy="108" r="40"/><circle cx="262" cy="106" r="42"/><circle cx="110" cy="140" r="26"/><circle cx="292" cy="138" r="26"/></g>
+          <g fill="#63ad70"><circle cx="185" cy="68" r="30"/><circle cx="238" cy="90" r="28"/><circle cx="140" cy="102" r="24"/><circle cx="270" cy="118" r="22"/></g>
+          <g fill="#7cc487" opacity=".85"><circle cx="205" cy="55" r="16"/><circle cx="160" cy="90" r="14"/><circle cx="250" cy="72" r="13"/></g>
+          <g stroke="#3d7d4a" stroke-width="2" stroke-linecap="round" opacity=".6"><path d="M170 70 l14 4 M184 80 l14 4 M220 66 l14 4 M232 80 l14 4 M130 112 l12 4 M270 120 l12 4"/></g>
+          <g fill="#7cae5c"><path d="M40 270 q6-26 12 0z M60 272 q5-20 10 0z M330 272 q6-24 12 0z M350 270 q5-18 10 0z"/></g>
+        </svg>
+      </div>
+      <h3>Pohon Sonokeling <i>(Dalbergia latifolia)</i></h3>
+      <p>Pohon kayu keras bernilai tinggi dari famili Fabaceae (polong-polongan) dengan daun majemuk menyirip. Sering ditanam sebagai pohon pelindung atau batas kebun.</p>
+      <label>📷 Ganti dengan foto sendiri<input type="file" id="photo" accept="image/*"></label>
+    </div>
+  </div>
+
+  <!-- RUANG -->
+  <section id="ruang">
+    <h2>Ruang (Blok Kebun)</h2>
+    <div class="sub">Setiap ruang adalah blok/zona kebun. Klik untuk melihat isi, penanggung jawab, dan faktor eksternal terkait.</div>
+    <div class="toolbar">
+      <input id="q" placeholder="Cari blok..." />
+      <select id="fk"><option value="">Semua komoditas</option><option>Kelapa Sawit</option><option>Karet</option><option>Sonokeling</option></select>
+      <select id="fs"><option value="">Semua tingkat gulma</option><option>Rendah</option><option>Sedang</option><option>Tinggi</option></select>
+    </div>
+    <div class="grid" id="gRuang"></div>
+  </section>
+
+  <!-- ISI RUANG -->
+  <section id="isi">
+    <h2>Isi Ruang</h2>
+    <div class="sub">Ringkasan isi tiap ruang: gulma dominan, kegiatan terjadwal, dan saprodi (herbisida/alat). Klik untuk rincian.</div>
+    <div class="grid" id="gIsi"></div>
+  </section>
+
+  <!-- PENANGGUNG JAWAB -->
+  <section id="pj">
+    <h2>Penanggung Jawab</h2>
+    <div class="sub">Petugas yang bertanggung jawab atas ruang dan kegiatan pengendalian gulma.</div>
+    <div class="grid" id="gPj"></div>
+  </section>
+
+  <!-- EKSTERNAL -->
+  <section id="eksternal">
+    <h2>Faktor Eksternal</h2>
+    <div class="sub">Pengaruh dari luar kebun yang menentukan keberhasilan pengendalian gulma.</div>
+    <div class="grid" id="gEks"></div>
+  </section>
+</main>
+
+<footer>SIM Pengendalian Gulma Perkebunan • Data pada halaman ini adalah contoh (dummy) dan dapat diganti pada bagian DATA di dalam file.</footer>
+
+<div class="ov" id="ov"><div class="modal"><div class="m-head"><h3 id="mt"></h3><button class="close" id="mc" aria-label="Tutup">✕</button></div><div class="m-body" id="mb"></div></div></div>
+
+<script>
+/* ===================== DATA (ubah sesuai kebutuhan) ===================== */
+const PJ = [
+  {id:"p1",nama:"Budi Santoso",jabatan:"Asisten Kebun Sawit",hp:"0812-0000-0001",tugas:"Koordinasi penyiangan & penyemprotan blok sawit",ruang:["r1","r2","r5"]},
+  {id:"p2",nama:"Siti Rahmawati",jabatan:"Asisten Kebun Karet",hp:"0812-0000-0002",tugas:"Pengendalian gulma dan pemeliharaan blok karet",ruang:["r3","r4"]},
+  {id:"p3",nama:"Ahmad Fauzi",jabatan:"Mandor Penyemprotan",hp:"0812-0000-0003",tugas:"Pelaksanaan aplikasi herbisida & K3",ruang:["r1","r3","r5"]},
+  {id:"p4",nama:"Dewi Lestari",jabatan:"Staf Gudang Saprodi",hp:"0812-0000-0004",tugas:"Stok herbisida, APD, dan peralatan",ruang:["r6"]}
+];
+
+const EKS = [
+  {id:"e1",nama:"Curah Hujan Tinggi",level:"Tinggi",dampak:"Gulma tumbuh cepat dan herbisida mudah tercuci sehingga efektivitas turun.",saran:"Majukan siklus piringan/jalur, gunakan herbisida dengan sifat rainfast, tambah tenaga kored.",ruang:["r1","r2","r3","r4","r5"]},
+  {id:"e2",nama:"Kenaikan Harga Herbisida",level:"Sedang",dampak:"Biaya saprodi naik dan anggaran semester bisa terlampaui.",saran:"Kombinasikan metode kimia dan mekanis, beli dalam jumlah besar secara kolektif.",ruang:["r1","r3","r5","r6"]},
+  {id:"e3",nama:"Ketersediaan Tenaga Kerja",level:"Sedang",dampak:"Keterlambatan jadwal penyiangan manual saat musim panen.",saran:"Atur rotasi tim, pertimbangkan sistem borongan atau mekanisasi (mesin babat).",ruang:["r2","r4"]},
+  {id:"e4",nama:"Regulasi Herbisida & Lingkungan",level:"Rendah",dampak:"Pembatasan bahan aktif tertentu dan kewajiban pelaporan penggunaan.",saran:"Gunakan produk terdaftar, simpan dokumen izin, latih operator semprot.",ruang:["r1","r2","r3","r4","r5","r6"]},
+  {id:"e5",nama:"Gulma dari Lahan Sekitar",level:"Tinggi",dampak:"Biji gulma dari lahan tetangga masuk melalui batas kebun dan jalan.",saran:"Bersihkan jalur batas secara berkala, perkuat zona penyangga (sonokeling).",ruang:["r5","r6","r4"]},
+  {id:"e6",nama:"Musim Kemarau Panjang",level:"Sedang",dampak:"Gulma kering menjadi bahan bakar sehingga risiko kebakaran meningkat.",saran:"Kendalikan gulma kering, siapkan sekat bakar dan patroli.",ruang:["r1","r3","r5"]}
+];
+
+const RUANG = [
+  {id:"r1",nama:"Blok A1",komoditas:"Kelapa Sawit",luas:45,umur:"12 tahun (TM)",tutupan:22,tingkat:"Rendah",pj:["p1","p3"],
+   gulma:[["Paspalum conjugatum (rumput pait)",40],["Asystasia gangetica",25],["Ageratum conyzoides",10]],
+   kegiatan:[["Semprot piringan","Glifosat","20 Okt 2026"],["Kastrasi gulma jalur","Manual","15 Nov 2026"]],
+   saprodi:["Herbisida glifosat 120 L","Knapsack sprayer 8 unit","APD 12 set"],eks:["e1","e2","e4","e6"]},
+  {id:"r2",nama:"Blok A2",komoditas:"Kelapa Sawit",luas:32,umur:"2 tahun (TBM)",tutupan:48,tingkat:"Sedang",pj:["p1"],
+   gulma:[["Chromolaena odorata (kirinyuh)",35],["Mikania micrantha",20],["Imperata cylindrica",15]],
+   kegiatan:[["Penyiangan piringan","Manual (kored)","18 Okt 2026"],["Tanam kacangan penutup tanah","Mucuna bracteata","02 Nov 2026"]],
+   saprodi:["Cangkul/kored 20 unit","Benih kacangan 15 kg"],eks:["e1","e3","e4"]},
+  {id:"r3",nama:"Blok B1",komoditas:"Karet",luas:60,umur:"10 tahun (TM)",tutupan:30,tingkat:"Rendah",pj:["p2","p3"],
+   gulma:[["Paspalum conjugatum",45],["Ottochloa nodosa",18]],
+   kegiatan:[["Semprot jalur","Glifosat + metsulfuron-metil","25 Okt 2026"]],
+   saprodi:["Herbisida glifosat 80 L","Metsulfuron-metil 6 kg"],eks:["e1","e2","e4","e6"]},
+  {id:"r4",nama:"Blok B2",komoditas:"Karet",luas:28,umur:"1,5 tahun (TBM)",tutupan:72,tingkat:"Tinggi",pj:["p2"],
+   gulma:[["Imperata cylindrica (alang-alang)",50],["Chromolaena odorata",30],["Mikania micrantha",18]],
+   kegiatan:[["Pembabatan & semprot alang-alang","Mekanis + kimia","16 Okt 2026"],["Pemantauan ulang","Survei plot","30 Okt 2026"]],
+   saprodi:["Mesin babat 3 unit","Herbisida glifosat 40 L"],eks:["e1","e3","e4","e5"]},
+  {id:"r5",nama:"Blok C1",komoditas:"Kelapa Sawit",luas:50,umur:"8 tahun (TM)",tutupan:55,tingkat:"Sedang",pj:["p1","p3"],
+   gulma:[["Mikania micrantha",32],["Asystasia gangetica",28],["Paspalum conjugatum",20]],
+   kegiatan:[["Semprot piringan & gawangan","Glifosat","19 Okt 2026"],["Pembersihan jalur batas","Manual","01 Nov 2026"]],
+   saprodi:["Herbisida glifosat 100 L","Knapsack sprayer 6 unit"],eks:["e1","e2","e4","e5","e6"]},
+  {id:"r6",nama:"Zona Penyangga Sonokeling",komoditas:"Sonokeling",luas:6,umur:"5 tahun",tutupan:40,tingkat:"Sedang",pj:["p4"],
+   gulma:[["Ageratum conyzoides",30],["Paspalum conjugatum",25]],
+   kegiatan:[["Penyiangan piringan pohon","Manual","22 Okt 2026"],["Pemeriksaan batas kebun","Patroli","05 Nov 2026"]],
+   saprodi:["Kored 10 unit","Gudang saprodi utama"],eks:["e2","e4","e5"]}
+];
+
+/* ===================== UTIL ===================== */
+const $ = s => document.querySelector(s);
+const byId = (arr,id) => arr.find(x=>x.id===id);
+const ov=$("#ov");
+function openModal(title,html){$("#mt").textContent=title;$("#mb").innerHTML=html;ov.classList.add("show");ov.querySelector(".modal").scrollTop=0}
+$("#mc").onclick=()=>ov.classList.remove("show");
+ov.addEventListener("click",e=>{if(e.target===ov)ov.classList.remove("show")});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")ov.classList.remove("show")});
+const initials=n=>n.split(" ").map(x=>x[0]).slice(0,2).join("");
+const bar=v=>`<div class="bar"><span style="width:${v}%"></span></div>`;
+const chipR=id=>`<span class="chip" onclick="showRuang('${id}')">${byId(RUANG,id).nama}</span>`;
+const chipP=id=>`<span class="chip" onclick="showPj('${id}')">${byId(PJ,id).nama}</span>`;
+const chipE=id=>`<span class="chip" onclick="showEks('${id}')">${byId(EKS,id).nama}</span>`;
+
+/* ===================== DETAIL (modal) ===================== */
+function showRuang(id){
+  const r=byId(RUANG,id);
+  openModal(r.nama+" • "+r.komoditas,`
+    <div class="row"><span>${r.luas} ha • ${r.umur}</span><span class="tag ${r.tingkat}">Gulma ${r.tingkat}</span></div>
+    <div class="meta">Tutupan gulma ${r.tutupan}%</div>${bar(r.tutupan)}
+    <h5>Isi ruang: gulma dominan</h5>
+    <table><tr><th>Jenis gulma</th><th>Dominasi</th></tr>${r.gulma.map(g=>`<tr><td>${g[0]}</td><td>${g[1]}%${bar(g[1])}</td></tr>`).join("")}</table>
+    <h5>Isi ruang: kegiatan</h5>
+    <table><tr><th>Kegiatan</th><th>Metode</th><th>Jadwal</th></tr>${r.kegiatan.map(k=>`<tr><td>${k[0]}</td><td>${k[1]}</td><td>${k[2]}</td></tr>`).join("")}</table>
+    <h5>Isi ruang: saprodi &amp; alat</h5>${r.saprodi.map(s=>`<span class="chip" style="cursor:default">${s}</span>`).join("")}
+    <h5>Penanggung jawab</h5>${r.pj.map(chipP).join("")}
+    <h5>Faktor eksternal terkait</h5>${r.eks.map(chipE).join("")}`);
+}
+function showPj(id){
+  const p=byId(PJ,id);
+  openModal(p.nama,`
+    <div class="row" style="justify-content:flex-start;gap:14px"><div class="avatar">${initials(p.nama)}</div><div><b>${p.jabatan}</b><div class="meta">📞 ${p.hp}</div></div></div>
+    <h5>Tugas</h5><p>${p.tugas}</p>
+    <h5>Ruang yang ditangani</h5>${p.ruang.map(chipR).join("")}`);
+}
+function showEks(id){
+  const e=byId(EKS,id);
+  openModal(e.nama,`
+    <div class="row"><b>Tingkat pengaruh</b><span class="tag ${e.level}">${e.level}</span></div>
+    <h5>Dampak</h5><p>${e.dampak}</p>
+    <h5>Saran tindakan</h5><p>${e.saran}</p>
+    <h5>Ruang terdampak</h5>${e.ruang.map(chipR).join("")}`);
+}
+function showIsi(id){
+  const r=byId(RUANG,id);
+  openModal("Isi Ruang: "+r.nama,`
+    <h5>Gulma</h5>${r.gulma.map(g=>`<div class="row"><span>${g[0]}</span><b>${g[1]}%</b></div>${bar(g[1])}`).join("")}
+    <h5>Kegiatan terjadwal</h5>${r.kegiatan.map(k=>`<div class="row"><span>${k[0]} <span class="meta">(${k[1]})</span></span><b>${k[2]}</b></div>`).join("")}
+    <h5>Saprodi &amp; alat</h5>${r.saprodi.map(s=>`<span class="chip" style="cursor:default">${s}</span>`).join("")}
+    <h5>Buka detail lengkap</h5>${chipR(id)}`);
+}
+
+/* ===================== RENDER ===================== */
+function renderStats(){
+  const luas=RUANG.reduce((a,r)=>a+r.luas,0);
+  const rata=Math.round(RUANG.reduce((a,r)=>a+r.tutupan,0)/RUANG.length);
+  const items=[
+    ["Ruang / Blok",RUANG.length,()=>openModal("Semua Ruang",RUANG.map(r=>chipR(r.id)).join(""))],
+    ["Total Luas (ha)",luas,()=>openModal("Luas per Ruang",`<table><tr><th>Ruang</th><th>Komoditas</th><th>Luas</th></tr>${RUANG.map(r=>`<tr><td>${r.nama}</td><td>${r.komoditas}</td><td>${r.luas} ha</td></tr>`).join("")}</table>`)],
+    ["Penanggung Jawab",PJ.length,()=>openModal("Penanggung Jawab",PJ.map(p=>chipP(p.id)).join(""))],
+    ["Faktor Eksternal",EKS.length,()=>openModal("Faktor Eksternal",EKS.map(e=>chipE(e.id)).join(""))],
+    ["Rata-rata Tutupan Gulma",rata+"%",()=>openModal("Tutupan Gulma per Ruang",RUANG.map(r=>`<div class="row"><span>${r.nama}</span><b>${r.tutupan}%</b></div>${bar(r.tutupan)}`).join(""))]
+  ];
+  $("#stats").innerHTML="";
+  items.forEach(i=>{const d=document.createElement("div");d.className="w";d.innerHTML=`<div class="meta">${i[0]}</div><div class="big">${i[1]}</div><div class="hint">Klik untuk detail →</div>`;d.onclick=i[2];$("#stats").appendChild(d)});
+}
+function renderRuang(){
+  const q=$("#q").value.toLowerCase(),k=$("#fk").value,s=$("#fs").value;
+  const list=RUANG.filter(r=>(!q||r.nama.toLowerCase().includes(q))&&(!k||r.komoditas===k)&&(!s||r.tingkat===s));
+  $("#gRuang").innerHTML=list.map(r=>`
+    <div class="w" onclick="showRuang('${r.id}')">
+      <div class="row"><h4>${r.nama}</h4><span class="tag ${r.tingkat}">${r.tingkat}</span></div>
+      <div class="meta">${r.komoditas} • ${r.luas} ha</div>
+      <div class="meta" style="margin-top:8px">Tutupan gulma ${r.tutupan}%</div>${bar(r.tutupan)}
+      <div class="hint">Klik untuk detail →</div></div>`).join("")||`<p class="meta">Tidak ada ruang yang cocok.</p>`;
+}
+function renderIsi(){
+  $("#gIsi").innerHTML=RUANG.map(r=>`
+    <div class="w" onclick="showIsi('${r.id}')">
+      <h4>${r.nama}</h4>
+      <div class="meta">Gulma dominan:</div><div><b>${r.gulma[0][0].split(" (")[0]}</b></div>
+      <div class="meta" style="margin-top:6px">Kegiatan berikutnya:</div><div>${r.kegiatan[0][0]} • ${r.kegiatan[0][2]}</div>
+      <div class="hint">Klik untuk isi ruang →</div></div>`).join("");
+}
+function renderPj(){
+  $("#gPj").innerHTML=PJ.map(p=>`
+    <div class="w" onclick="showPj('${p.id}')">
+      <div class="row" style="justify-content:flex-start;gap:12px"><div class="avatar">${initials(p.nama)}</div><div><h4>${p.nama}</h4><div class="meta">${p.jabatan}</div></div></div>
+      <div class="meta">Menangani ${p.ruang.length} ruang</div>
+      <div class="hint">Klik untuk detail →</div></div>`).join("");
+}
+function renderEks(){
+  $("#gEks").innerHTML=EKS.map(e=>`
+    <div class="w" onclick="showEks('${e.id}')">
+      <div class="row"><h4>${e.nama}</h4><span class="tag ${e.level}">${e.level}</span></div>
+      <div class="meta">${e.dampak}</div>
+      <div class="hint">Klik untuk detail →</div></div>`).join("");
+}
+["q","fk","fs"].forEach(i=>$("#"+i).addEventListener("input",renderRuang));
+
+/* ganti foto pohon */
+$("#photo").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const rd=new FileReader();
+  rd.onload=()=>{$("#treeBox").innerHTML=`<img src="${rd.result}" alt="Pohon sonokeling (Dalbergia latifolia)">`};
+  rd.readAsDataURL(f);
+});
+
+renderStats();renderRuang();renderIsi();renderPj();renderEks();
+</script>
+</body>
+</html>
